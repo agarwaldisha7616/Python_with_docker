@@ -5,9 +5,11 @@ class Image:
     def __init__(self):
         self.client = docker.from_env()
     
-    
-    def display_all_images(self, name: str, all: bool=True)-> list:
+
+
+    def display_all_images(self, name: str=None, all: bool=True)-> list:
         return self.client.images.list(name, all=all)
+
         
     def display_image(self, image_name: str) -> str:
         return self.client.images.get(image_name)
@@ -55,8 +57,15 @@ class Containers:
             return self.client.containers.get(container_id).restart(time_out=time_out)
         
     
-# class Networks: 
-#     def __init__(self):
-#         self.client=docker.from_env()
 
-    
+# for formating time
+def truncate_microseconds(timestamp: str) -> str:
+    # Split the timestamp into date, time, and microseconds
+    date, time, microseconds = timestamp[:-1].split("T")[0], timestamp[:-1].split("T")[1].split(".")[0], timestamp[:-1].split("T")[1].split(".")[1]
+    # Truncate the microseconds to 6 decimal places
+    truncated_microseconds = microseconds[:6]
+    # Combine the date, time, and truncated microseconds
+    truncated_timestamp = f"{date}T{time}.{truncated_microseconds}Z"
+    return truncated_timestamp
+
+
