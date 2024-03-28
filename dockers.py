@@ -1,12 +1,14 @@
 
 # definition of docker properties here
 import docker 
-class Image:
-    def __init__(self):
+
+class Docker:
+    def __init__(self) -> None:
         self.client = docker.from_env()
+class Image(Docker):
+    def __init__(self):
+        super().__init__()
     
-
-
     def display_all_images(self, name: str=None, all: bool=True)-> list:
         return self.client.images.list(name, all=all)
 
@@ -34,12 +36,13 @@ class Image:
     
  
     
-class Containers:
+class Containers(Docker):
         def __init__(self):
-            self.client = docker.from_env()
+            super().__init__()
 
-        def run_container(self, image: str, command: str, auto_remove: bool)->str:
+        def run_container(self, image: str, command: str="Container running", auto_remove: bool = False)->str:
             return self.client.containers.run(image, command, auto_remove=auto_remove)
+            
         
         def create_container(self, image: str, command: None)->str:
             return self.client.containers.create(image, command)
@@ -59,6 +62,7 @@ class Containers:
     
 
 # for formating time
+#FIXME: handle the case when we have no images hence no time
 def truncate_microseconds(timestamp: str) -> str:
     # Split the timestamp into date, time, and microseconds
     date, time, microseconds = timestamp[:-1].split("T")[0], timestamp[:-1].split("T")[1].split(".")[0], timestamp[:-1].split("T")[1].split(".")[1]
