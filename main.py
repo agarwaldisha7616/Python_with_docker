@@ -2,19 +2,23 @@ import streamlit as st
 from dockers import Image,Container,truncate_microseconds
 from datetime import datetime
 import requests
-from langchain_community.chat_models import ChatOpenAI
-from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
+
+st.set_page_config(page_title="Docker Manager", page_icon="🚢",layout="wide")
 
 def main_page():
-    st.sidebar.markdown("Docker Manager 🐟 ")
+    st.sidebar.markdown("Docker Manager 🐟")
 def chat_bot():
-    st.sidebar.markdown("Chat Bot 🤖")
+    st.sidebar.header(" Chat Bot 🤖")
+    
+def conversational():
+    st.sidebar.header("Chat Bot")
 
 
 page_names_to_funcs = {
     "Main Page": main_page,
     "Chat Bot": chat_bot,
+    "Conversational": conversational,
 }
 
 selected_page = st.sidebar.selectbox("Select a page", page_names_to_funcs.keys())
@@ -70,20 +74,20 @@ token = "dckr_pat_h4HHJcgk-m2J7TYyvNLPpRqed7s"
 def search_action(query):
     # print("Search query: ",query)
     url = f"https://hub.docker.com/api/content/v1/products/search?q={query}&type=image"
-    
-
+    headers = {
+        "Authorization": f"Bearer dckr_pat_h4HHJcgk-m2J7TYyvNLPpRqed7s"
+    }
     response = requests.get(url, headers=headers)
     data = response.json()
+    #st.write(data)
     results = data.get('summaries', [])
     
     st.subheader("Search Results:")
     for result in results[:10]:
-        repository_name = result['name']
+        repository_name = result['slug']
         if st.button(repository_name):
             pull_image(repository_name)
-        # st.write(f"Name: {result['name']}, Description: {result.get('short_description', 'N/A')}")
-        # st.write(f"Pull Command: docker pull {result['name']}")
-        # st.write('---')
+       
 def pull_image(repository: str):
     st.write(f"Image {repository} pulled sucessfully")
 st.title('Docker Image Search')
@@ -99,7 +103,7 @@ st.divider()
 
 container_attributes = container_object.display_all_container()
 
-container_id, container_image, container_status, container_created, container_names,start_container, stop_container = st.columns(7)
+container_id, container_image, container_status, container_created, container_names,start_container, stop_container = st.columns(7,gap="medium")
 
 container_id.subheader("Container ID")
 container_image.subheader("Image")
@@ -138,7 +142,8 @@ for container in container_attributes:
         container_object.stop_container(container_name[1:])
     with container_names:
         run_container:bool = st.button(container_name, key=container_id_)
-        st.write(run_container)
+        if run_container:
+            container_object.run_container(container_name[1:])
     
 
 
