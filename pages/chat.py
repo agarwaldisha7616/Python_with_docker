@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 import streamlit as st
-openai_api_key = "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"
+
 output_parser = StrOutputParser()
 
 
@@ -10,7 +10,7 @@ st.title("We Transformed Flawed Docker Scripts to prestine lines")
 
 
 
-llm = ChatOpenAI(openai_api_key=openai_api_key)
+llm = ChatOpenAI(openai_api_key='')
 
 
 with st.form('Docker Convo'):

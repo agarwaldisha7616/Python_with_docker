@@ -71,9 +71,9 @@ def search_action(query):
     # print("Search query: ",query)
     url = f"https://hub.docker.com/api/content/v1/products/search?q={query}&type=image"
     
-    headers = {
-        "Authorization": f"Bearer dckr_pat_h4HHJcgk-m2J7TYyvNLPpRqed7s"
-    }
+    # headers = {
+    #     "Authorization": f"Bearer dckr_pat_h4HHJcgk-m2J7TYyvNLPpRqed7s"
+    # }
 
     response = requests.get(url, headers=headers)
     data = response.json()
