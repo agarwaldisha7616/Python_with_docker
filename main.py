@@ -1,12 +1,30 @@
 import streamlit as st 
-from dockers import Image,Containers,truncate_microseconds
+from dockers import Image,Container,truncate_microseconds
 from datetime import datetime
+import requests
+from langchain_community.chat_models import ChatOpenAI
+from langchain.schema import AIMessage, HumanMessage, SystemMessage
+
+
+def main_page():
+    st.sidebar.markdown("Docker Manager 🐟 ")
+def chat_bot():
+    st.sidebar.markdown("Chat Bot 🤖")
+
+
+page_names_to_funcs = {
+    "Main Page": main_page,
+    "Chat Bot": chat_bot,
+}
+
+selected_page = st.sidebar.selectbox("Select a page", page_names_to_funcs.keys())
+page_names_to_funcs[selected_page]()
 
 
 #instance of an image
 image = Image()
 #image of container
-container = Containers()
+container_object = Container()
 
 st.title("Docker Manager by Tech Army! 🇮🇳 ")
 
@@ -33,28 +51,66 @@ for img in image.display_all_images():
     docker_img_attributes["Created"] = truncate_microseconds(docker_img_attributes["Created"])
     dt = datetime.strptime(docker_img_attributes["Created"],"%Y-%m-%dT%H:%M:%S.%fZ")
     day = dt.strftime("%Y-%m-%d-%A")
+    
+    #FIXME: this works
+    # day = docker_img_attributes["Created"].split("T")[0]
    
     repo.write(repo_name)
+  
     
     tag.write(repo_version)
     image_id.write(docker_img_attributes["Id"])
     size.write(f"{int(docker_img_attributes['Size'] / (1024 ** 2))} MB")
     created.write(day)
+
+
+st.divider()
+
+token = "dckr_pat_h4HHJcgk-m2J7TYyvNLPpRqed7s"
+def search_action(query):
+    # print("Search query: ",query)
+    url = f"https://hub.docker.com/api/content/v1/products/search?q={query}&type=image"
+    
+    headers = {
+        "Authorization": f"Bearer dckr_pat_h4HHJcgk-m2J7TYyvNLPpRqed7s"
+    }
+
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    results = data.get('summaries', [])
+    
+    st.subheader("Search Results:")
+    for result in results[:10]:
+        repository_name = result['name']
+        if st.button(repository_name):
+            pull_image(repository_name)
+        # st.write(f"Name: {result['name']}, Description: {result.get('short_description', 'N/A')}")
+        # st.write(f"Pull Command: docker pull {result['name']}")
+        # st.write('---')
+def pull_image(repository: str):
+    st.write(f"Image {repository} pulled sucessfully")
+st.title('Docker Image Search')
+search_query = st.text_input('Enter your search query')
+if st.button('Search'):
+    search_action(search_query)
+    
     
 
 st.header("Docker Container")
 
 st.divider()
 
-container_attributes = container.display_all_container()
+container_attributes = container_object.display_all_container()
 
-container_id, container_image, container_status, container_created, container_names = st.columns(5)
+container_id, container_image, container_status, container_created, container_names,start_container, stop_container = st.columns(7)
 
 container_id.subheader("Container ID")
 container_image.subheader("Image")
 container_status.subheader("Status")
 container_created.subheader("Created At")
 container_names.subheader("Name")
+start_container.subheader("Launch")
+stop_container.subheader("Terminate")
 
 #FIXME:
 # use the state of the container to style it as running, stopped, or 
@@ -76,16 +132,16 @@ for container in container_attributes:
     container_image.write(container_img)
     container_created.write(container_day)
     container_status.write(container_stats)
+    container_started = start_container.button("Start",key=(container_id_ + "j"))
+    if container_started:
+        container_object.start_container(container_name[1:])
+        
+    container_stopped = stop_container.button("End",key=(container_id_ + "k"))
+    if container_stopped:
+        container_object.stop_container(container_name[1:])
     with container_names:
         run_container:bool = st.button(container_name, key=container_id_)
-        if run_container:
-            container_running = container.run_container(container_img)
-            st.write(container_running)
-        
+        st.write(run_container)
     
-    
-st.divider()
-
-st.header("Image functions")
 
 
