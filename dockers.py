@@ -36,12 +36,12 @@ class Image(Docker):
     
  
     
-class Containers(Docker):
+class Container(Docker):
         def __init__(self):
             super().__init__()
 
-        def run_container(self, image: str, command: str="Container running", auto_remove: bool = False)->str:
-            return self.client.containers.run(image, command, auto_remove=auto_remove)
+        def run_container(self, image: str,detach : bool = True):
+            return self.client.containers.run(image, detach=detach)
             
         
         def create_container(self, image: str, command: None)->str:
@@ -50,14 +50,14 @@ class Containers(Docker):
         def display_all_container(self, all: bool=True, since: str =None, before: str=None,limit: int=-1)->list:
             return self.client.containers.list(all=all,since=since, before=before, limit=limit)
         
-        def start_container(self, container_id):
-            return self.client.containers.get(container_id).start()
+        def start_container(self, container_name:str):
+            return self.client.containers.get(container_name).start()
         
-        def stop_container(self, container_id, time_out: int=10):
-            return self.client.containers.get(container_id).stop(time_out=time_out)
+        def stop_container(self, container_name:str, time_out: int=10):
+            return self.client.containers.get(container_name).stop(time_out=time_out)
         
-        def restart_container(self, container_id, time_out:int=10):
-            return self.client.containers.get(container_id).restart(time_out=time_out)
+        def restart_container(self, container_name:str, time_out:int=10):
+            return self.client.containers.get(container_name).restart(time_out=time_out)
         
     
 
