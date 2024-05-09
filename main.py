@@ -1,8 +1,8 @@
 import streamlit as st 
-from dockers import Image,Container,truncate_microseconds
+from dockers import Image,Container
 from datetime import datetime
 import requests
-
+import pandas as pd 
 
 st.set_page_config(page_title="Docker Manager", page_icon="🚢",layout="wide")
 
@@ -12,7 +12,7 @@ def chat_bot():
     st.sidebar.header(" Chat Bot 🤖")
     
 def conversational():
-    st.sidebar.header("Chat Bot")
+    st.sidebar.header("Co-pilot 💻r ")
 
 
 page_names_to_funcs = {
@@ -30,43 +30,48 @@ image = Image()
 #image of container
 container_object = Container()
 
-st.title("Docker Manager by Tech Army! 🇮🇳 ")
+st.title(":blue[Docker Manager] by Tech Army! 🇮🇳 ")
 
 st.divider()
 
-st.header("Docker Images")
+
+st.header(":blue[Docker Images]")
 
 st.divider()
 
-repo, tag, image_id, created, size = st.columns(5,gap="medium")
 
-repo.subheader("Repository")
-tag.subheader("Tag")
-image_id.subheader("Image ID")
-created.subheader("Created At")
-size.subheader("Size")
 
+
+
+image_data = {"Repository":[],"Tag":[],"Image ID":[],"Created At":[],"Size":[]}
 
 for img in image.display_all_images(): 
     #preprocessing
     docker_img_attributes = img.attrs 
-    repo_tag = docker_img_attributes["RepoTags"][0]
-    repo_name,repo_version = repo_tag.split(":")
-    docker_img_attributes["Created"] = truncate_microseconds(docker_img_attributes["Created"])
-    dt = datetime.strptime(docker_img_attributes["Created"],"%Y-%m-%dT%H:%M:%S.%fZ")
-    day = dt.strftime("%Y-%m-%d-%A")
-    
-    #FIXME: this works
-    # day = docker_img_attributes["Created"].split("T")[0]
-   
-    repo.write(repo_name)
-  
-    
-    tag.write(repo_version)
-    image_id.write(docker_img_attributes["Id"])
-    size.write(f"{int(docker_img_attributes['Size'] / (1024 ** 2))} MB")
-    created.write(day)
+    if len(docker_img_attributes["RepoTags"])!=0: #to remove the dangling images
+        
+        repo_tag = docker_img_attributes["RepoTags"][0]
+        repo_name,repo_version = repo_tag.split(":")
+        docker_img_attributes["Created"] = docker_img_attributes["Created"].split("T")[0]
+        dt = datetime.strptime(docker_img_attributes["Created"],"%Y-%m-%d")
+        day = dt.strftime("%Y-%m-%d-%A")
+        
+        image_data["Repository"].append(repo_name)
+        image_data["Tag"].append(repo_version)
+        image_data["Image ID"].append(docker_img_attributes["Id"])
+        image_data["Created At"].append(day)
+        image_data["Size"].append(f"{int(docker_img_attributes['Size'] / (1024 ** 2))} MB")
+        
+        
+        
+image_dataframe = pd.DataFrame(image_data,columns=image_data.keys())
+st.table(image_dataframe)
 
+st.divider()
+st.title("Pull :blue[Docker] Images")
+image_to_be_pull : str = st.text_input("Enter image: ")
+if st.button("Pull"):
+    image.pull_image(image_to_be_pull)
 
 st.divider()
 
@@ -90,14 +95,14 @@ def search_action(query):
        
 def pull_image(repository: str):
     st.write(f"Image {repository} pulled sucessfully")
-st.title('Docker Image Search')
+st.title(':orange[Docker] Im:blue[a]ge :green[Search] 🐋')
 search_query = st.text_input('Enter your search query')
 if st.button('Search'):
     search_action(search_query)
     
     
 
-st.header("Docker Container")
+st.header(":blue[Docker Container]")
 
 st.divider()
 
@@ -110,15 +115,15 @@ container_image.subheader("Image")
 container_status.subheader("Status")
 container_created.subheader("Created At")
 container_names.subheader("Name")
-start_container.subheader("Launch")
-stop_container.subheader("Terminate")
+start_container.subheader(":green[Launch]")
+stop_container.subheader(":red[Terminate]")
 
 #FIXME:
 # use the state of the container to style it as running, stopped, or 
 for container in container_attributes:
     container_attributes = container.attrs
-    container_attributes["Created"] = truncate_microseconds(container_attributes["Created"])
-    container_dt = datetime.strptime(container_attributes["Created"],"%Y-%m-%dT%H:%M:%S.%fZ")
+    container_attributes["Created"] = container_attributes["Created"].split("T")[0]
+    container_dt = datetime.strptime(container_attributes["Created"],"%Y-%m-%d")
     container_day = container_dt.strftime("%Y-%m-%d-%A")
     
     container_id_ = container_attributes["Id"]
@@ -132,12 +137,12 @@ for container in container_attributes:
     container_id.write(container_id_)
     container_image.write(container_img)
     container_created.write(container_day)
-    container_status.write(container_stats)
-    container_started = start_container.button("Start",key=(container_id_ + "j"))
+    container_status.write(container_stats == "running" and ":green[Running]" or ":red[Stopped]")
+    container_started = start_container.button(":green[Start]",key=(container_id_ + "j"))
     if container_started:
         container_object.start_container(container_name[1:])
         
-    container_stopped = stop_container.button("End",key=(container_id_ + "k"))
+    container_stopped = stop_container.button(":red[End]",key=(container_id_ + "k"))
     if container_stopped:
         container_object.stop_container(container_name[1:])
     with container_names:

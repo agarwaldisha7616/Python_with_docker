@@ -16,8 +16,8 @@ class Image(Docker):
     def display_image(self, image_name: str) -> str:
         return self.client.images.get(image_name)
     
-    def pull_image(self, repository: str, tag: str = None)-> str:
-        return self.client.images.pull(repository, tag=tag)
+    def pull_image(self, repository: str):
+        self.client.images.pull(repository)
     
     def push_image(self, repository:str, tag:str = None) -> str:
         return self.client.images.push(repository, tag=tag)
@@ -53,23 +53,12 @@ class Container(Docker):
         def start_container(self, container_name:str):
             return self.client.containers.get(container_name).start()
         
-        def stop_container(self, container_name:str, time_out: int=10):
-            return self.client.containers.get(container_name).stop(time_out=time_out)
+        def stop_container(self, container_name:str):
+            return self.client.containers.get(container_name).stop()
         
         def restart_container(self, container_name:str, time_out:int=10):
             return self.client.containers.get(container_name).restart(time_out=time_out)
         
     
-
-# for formating time
-#FIXME: handle the case when we have no images hence no time
-def truncate_microseconds(timestamp: str) -> str:
-    # Split the timestamp into date, time, and microseconds
-    date, time, microseconds = timestamp[:-1].split("T")[0], timestamp[:-1].split("T")[1].split(".")[0], timestamp[:-1].split("T")[1].split(".")[1]
-    # Truncate the microseconds to 6 decimal places
-    truncated_microseconds = microseconds[:6]
-    # Combine the date, time, and truncated microseconds
-    truncated_timestamp = f"{date}T{time}.{truncated_microseconds}Z"
-    return truncated_timestamp
 
 
