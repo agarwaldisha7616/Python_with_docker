@@ -1,28 +1,12 @@
 import streamlit as st 
-from dockers import Image,Container
+from docker import Image,Container
 from datetime import datetime
 import requests
 import pandas as pd 
 
 st.set_page_config(page_title="Docker Manager", page_icon="🚢",layout="wide")
 
-def main_page():
-    st.sidebar.markdown("Docker Manager 🐟")
-def chat_bot():
-    st.sidebar.header(" Chat Bot 🤖")
-    
-def conversational():
-    st.sidebar.header("Co-pilot 💻r ")
 
-
-page_names_to_funcs = {
-    "Main Page": main_page,
-    "Chat Bot": chat_bot,
-    "Conversational": conversational,
-}
-
-selected_page = st.sidebar.selectbox("Select a page", page_names_to_funcs.keys())
-page_names_to_funcs[selected_page]()
 
 
 #instance of an image
@@ -38,9 +22,6 @@ st.divider()
 st.header(":blue[Docker Images]")
 
 st.divider()
-
-
-
 
 
 image_data = {"Repository":[],"Tag":[],"Image ID":[],"Created At":[],"Size":[]}
@@ -75,7 +56,6 @@ if st.button("Pull"):
 
 st.divider()
 
-token = "dckr_pat_h4HHJcgk-m2J7TYyvNLPpRqed7s"
 def search_action(query):
     # print("Search query: ",query)
     url = f"https://hub.docker.com/api/content/v1/products/search?q={query}&type=image"

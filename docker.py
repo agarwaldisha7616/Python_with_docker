@@ -1,7 +1,4 @@
-
-# definition of docker properties here
-import docker 
-
+import docker
 class Docker:
     def __init__(self) -> None:
         self.client = docker.from_env()
@@ -60,5 +57,3 @@ class Container(Docker):
             return self.client.containers.get(container_name).restart(time_out=time_out)
         
     
-
-
