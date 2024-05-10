@@ -1,11 +1,10 @@
 
 import utils
-import streamlit as st
 from streaming import StreamHandler
+import streamlit as st
 from langchain_openai import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
-from langchain_core.prompts import ChatPromptTemplate
 st.set_page_config(page_title="Docker Chat Bot", page_icon="🚢")
 st.header(":blue[Docker Chat Bot]")
 
@@ -16,13 +15,10 @@ class DockerChatBot:
         self.openai_model = utils.configure_openai()
         
     @st.cache_resource
-    def setup_chain(self):
+    def setup_chain(_self):
         memory = ConversationBufferMemory()
-        
-        prompt = ChatPromptTemplate.from_messages([("system", "You are world class Docker Expert. and your duty is to write the correct the given docker script to the best version with commented explanation. If input is irrelevant to docker, politely decline the request"),("user", "{input}")])
-        
-        llm = ChatOpenAI(model_name=self.openai_model, temperature = 0.8, streaming = True)
-        chain = ConversationChain(memory=memory, prompt=prompt, llm=llm,verbose=True)
+        llm = ChatOpenAI(model_name=_self.openai_model, temperature = 0.8, streaming = True)
+        chain = ConversationChain(memory=memory, llm=llm,verbose=True)
         return chain 
     
     @utils.enable_chat_history
@@ -41,7 +37,5 @@ class DockerChatBot:
 
 if __name__=="__main__":
     bot = DockerChatBot()
-    if bot is not None:
-        bot.main()
-    else:
-        print("Failed to initialize DockerChatBot")
+    bot.main()
+    
