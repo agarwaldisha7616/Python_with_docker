@@ -6,7 +6,7 @@ from langchain_openai import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 st.set_page_config(page_title="Docker Chat Bot", page_icon="🚢")
-st.header(":blue[Docker Chat Bot]")
+st.header(":orange[Chat Bot]")
 
 
 class DockerChatBot:

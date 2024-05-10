@@ -41,7 +41,7 @@ def enable_chat_history(func):
     if os.environ.get("OPENAI_API_KEY"):
         
         if "messages" not in st.session_state:
-           st.session_state["messages"]=[{"role":"assistant","content":"Yo dawg! How ya doin?"}]
+           st.session_state["messages"]=[{"role":"assistant","content":"Hello, I am a bot from Tech Army 🇮🇳, how can I help you today?"}]
         
         for message in st.session_state["messages"]:
             st.chat_message(message["role"]).write(message["content"])
@@ -52,3 +52,4 @@ def enable_chat_history(func):
 def display_message(author:str, message:str):
     st.session_state["messages"].append({"role":author,"content":message})
     st.chat_message(author).write(message)
+

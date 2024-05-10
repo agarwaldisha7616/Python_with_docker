@@ -25,26 +25,23 @@ class Image(Docker):
     
     def search_image(self, term: str, limit: int)-> list:
         return self.client.images.search(term,limit)
-
-    def tag_image(self, repository: str, tag: str, force: bool)->bool:
-        return self.client.images.tag(repository,tag,force)
     
     def build_image(self, path: str, tag: str):
         return self.client.images.build(path=path, tag=tag)
-    
+    def get_image(self, image_name: str):
+        return self.client.images.get(image_name)
  
     
 class Container(Docker):
         def __init__(self):
             super().__init__()
 
-        def run_container(self, image: str,detach : bool = True):
-            return self.client.containers.run(image, detach=detach)
+        def run_container(self, image_str,detach : bool = True):
+            image = self.client.images.get(image_str)
+            container_name = image_str.split(":")[0]
+            container_name = container_name.replace("/","")
+            return self.client.containers.run(image,name=container_name,auto_remove=True, detach=detach)
             
-        
-        def create_container(self, image: str, command: None)->str:
-            return self.client.containers.create(image, command)
-        
         def display_all_container(self, all: bool=True, since: str =None, before: str=None,limit: int=-1)->list:
             return self.client.containers.list(all=all,since=since, before=before, limit=limit)
         
@@ -54,7 +51,5 @@ class Container(Docker):
         def stop_container(self, container_name:str):
             return self.client.containers.get(container_name).stop()
         
-        def restart_container(self, container_name:str, time_out:int=10):
-            return self.client.containers.get(container_name).restart(time_out=time_out)
-        
-    
+        def prune(self, filters: dict=None):
+            return self.client.containers.prune(filters=filters)
