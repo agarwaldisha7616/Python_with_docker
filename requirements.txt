@@ -2,3 +2,5 @@ streamlit
 docker
 openai
 langchain
+langchain-openai
+python-dotenv
